@@ -7,8 +7,17 @@ from pathlib import Path
 from copilot_acp import CopilotACPClient
 
 
-async def _run(prompt: str, cwd: str | None, executable: str | None) -> int:
-    async with CopilotACPClient(executable=executable, default_cwd=cwd) as client:
+async def _run(
+    prompt: str,
+    cwd: str | None,
+    executable: str | None,
+    model: str | None,
+) -> int:
+    async with CopilotACPClient(
+        executable=executable,
+        model=model,
+        default_cwd=cwd,
+    ) as client:
         session = await client.create_session()
         transcript = await client.ask_text(session.id, prompt)
         print(transcript.text, end="" if transcript.text.endswith("\n") else "\n")
@@ -28,8 +37,13 @@ def main() -> None:
         default=None,
         help="Path to the standalone `copilot` executable.",
     )
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Copilot model id to use, for example `gpt-5.2`.",
+    )
     args = parser.parse_args()
-    raise SystemExit(asyncio.run(_run(args.prompt, args.cwd, args.copilot)))
+    raise SystemExit(asyncio.run(_run(args.prompt, args.cwd, args.copilot, args.model)))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 
 Thin Python wrapper for talking to GitHub Copilot CLI through the Agent Client Protocol (ACP).
 
+Default model: `gpt-4.1`.
+
 ## Why this shape
 
 GitHub documents Copilot CLI's ACP mode as a stdio/TCP server started with `copilot --acp`, and explicitly recommends `stdio` for IDE-style integrations. The official ACP Python SDK already handles ACP framing, process lifecycle, and session callbacks, so this project keeps the wrapper narrow instead of rebuilding transport code.
@@ -96,6 +98,26 @@ asyncio.run(main())
 
 ```bash
 copilot-acp-once "Explain the current directory."
+copilot-acp-once --model gpt-5.2 "Explain the current directory."
 ```
 
 Optionally set `COPILOT_CLI_PATH` if `copilot` is not on `PATH`.
+
+## Model selection
+
+`CopilotACPClient(...)` defaults to `gpt-4.1`.
+
+Pass `model=` to choose a different Copilot model for the ACP server process:
+
+```python
+async with CopilotACPClient(model="gpt-5.2") as client:
+    ...
+```
+
+Or use `--model` in the example CLI:
+
+```bash
+copilot-acp-once --model gpt-5.2 "Briefly, state your capabilities."
+```
+
+The wrapper forwards this directly to the standalone Copilot CLI through `--model <model-id>`.

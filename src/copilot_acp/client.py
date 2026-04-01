@@ -14,6 +14,7 @@ from acp.interfaces import Client
 
 PermissionHandler = Callable[[Any, str | None, Any], Awaitable[dict[str, Any]]]
 _COPILOT_SHIM_MARKER = os.path.join("github.copilot-chat", "copilotCli")
+_DEFAULT_MODEL = "gpt-4.1"
 
 
 def _read_attr(value: Any, *names: str) -> Any:
@@ -97,11 +98,13 @@ class CopilotACPClient:
         self,
         executable: str | None = None,
         *,
+        model: str | None = None,
         protocol_version: int = 1,
         default_cwd: str | os.PathLike[str] | None = None,
         permission_handler: PermissionHandler | None = None,
     ) -> None:
         self.executable = self._resolve_executable(executable)
+        self.model = model or _DEFAULT_MODEL
         self.protocol_version = protocol_version
         self.default_cwd = str(Path(default_cwd).resolve()) if default_cwd else os.getcwd()
         self._event_client = _EventClient(permission_handler=permission_handler)
@@ -110,11 +113,13 @@ class CopilotACPClient:
         self._process: Any = None
 
     async def __aenter__(self) -> CopilotACPClient:
+        command = [self.executable]
+        if self.model:
+            command.extend(["--model", self.model])
+        command.extend(["--acp", "--stdio"])
         self._spawn_cm = spawn_agent_process(
             self._event_client,
-            self.executable,
-            "--acp",
-            "--stdio",
+            *command,
         )
         try:
             self._connection, self._process = await self._spawn_cm.__aenter__()
