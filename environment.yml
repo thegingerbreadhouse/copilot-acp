@@ -1,0 +1,10 @@
+name: copilot-acp
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pip>=26
+  - setuptools>=80
+  - wheel>=0.46
+  - pip:
+      - -e .
