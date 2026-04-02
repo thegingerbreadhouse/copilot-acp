@@ -49,19 +49,17 @@ before attempting live ACP sessions.
 
 ## Current runtime status on this machine
 
-The wrapper has been validated through:
+The project has been validated on this machine through:
 
 - ACP process startup against `/opt/homebrew/bin/copilot`
 - `initialize`
 - `newSession`
+- one-shot prompt/response through the Python wrapper
+- persistent host mode over TCP
+- mailbox supervisor/worker routing through SQLite
+- config-driven isolated workers started from their own terminal
 
-Prompt execution currently returns:
-
-```text
-Error: You are not authorized to use this Copilot feature, it requires an enterprise or organization policy to be enabled.
-```
-
-So the Python transport is working, but successful prompts depend on Copilot-side account or org policy for ACP-enabled agent features.
+Verified live prompts currently work with authenticated Copilot CLI access on this machine.
 
 ## Install
 
@@ -188,6 +186,50 @@ The config file controls:
 - lightweight prompt-level customization for skills, hooks, and operating rules
 
 The example config is in [worker.config.example.json](/Users/kateanderson/Documents/Programming/copilot-acp/examples/worker.config.example.json).
+
+## Supervisor workflow
+
+For a supervisor running in another terminal on the same machine, use the mailbox as the integration boundary.
+
+The dedicated supervisor skill is in [SKILL.md](/Users/kateanderson/Documents/Programming/copilot-acp/supervisor-skill/SKILL.md).
+
+The `supervisor-skill/` folder is portable on the same machine. You can copy it elsewhere and still use its scripts as long as they can access the shared SQLite mailbox database path.
+
+Typical flow:
+
+1. Start a worker in terminal A:
+
+```bash
+copilot-acp worker --config examples/worker.config.example.json
+```
+
+2. Submit work from terminal B:
+
+```bash
+python supervisor-skill/scripts/submit_task.py \
+  --db /absolute/path/to/copilot-acp.sqlite \
+  --supervisor supervisor.main \
+  --recipient worker.dev \
+  --subject "Repository question" \
+  --body "Briefly summarize the repository structure."
+```
+
+3. Wait for the result from terminal B:
+
+```bash
+python supervisor-skill/scripts/wait_for_result.py \
+  --db /absolute/path/to/copilot-acp.sqlite \
+  --supervisor supervisor.main \
+  --thread-id <thread_id>
+```
+
+4. Inspect mailbox state if needed:
+
+```bash
+python supervisor-skill/scripts/inspect_mailbox.py \
+  --db /absolute/path/to/copilot-acp.sqlite \
+  --thread-id <thread_id>
+```
 
 Minimal programmatic shape:
 

@@ -1,4 +1,8 @@
-from .client import CopilotACPClient, PromptTranscript, SessionHandle, SessionUpdateEvent
+from __future__ import annotations
+
+from importlib import import_module
+from typing import Any
+
 from .config import WorkerConfig, WorkerConfigLoader
 from .mailbox import SQLiteMailbox
 from .models import (
@@ -9,18 +13,15 @@ from .models import (
     PromptRequest,
     PromptResponse,
     RuntimeOptions,
+    SessionOptions,
     WorkerProfile,
 )
-from .services import CopilotChatSession, CopilotPromptService, SessionOptions
 from .supervisor import Supervisor
-from .workers import AgentWorker
 
 __all__ = [
     "CopilotACPClient",
     "CopilotChatSession",
     "CopilotPromptService",
-    "WorkerConfig",
-    "WorkerConfigLoader",
     "MailboxMessage",
     "MessageKind",
     "MessageStatus",
@@ -29,11 +30,26 @@ __all__ = [
     "PromptResponse",
     "PromptTranscript",
     "RuntimeOptions",
-    "SessionOptions",
-    "SessionHandle",
-    "SessionUpdateEvent",
     "SQLiteMailbox",
+    "SessionHandle",
+    "SessionOptions",
+    "SessionUpdateEvent",
     "Supervisor",
+    "WorkerConfig",
+    "WorkerConfigLoader",
     "WorkerProfile",
     "AgentWorker",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    if name in {"CopilotACPClient", "PromptTranscript", "SessionHandle", "SessionUpdateEvent"}:
+        module = import_module("copilot_acp.client")
+        return getattr(module, name)
+    if name in {"CopilotChatSession", "CopilotPromptService", "SessionOptions"}:
+        module = import_module("copilot_acp.services")
+        return getattr(module, name)
+    if name == "AgentWorker":
+        module = import_module("copilot_acp.workers")
+        return getattr(module, name)
+    raise AttributeError(f"module 'copilot_acp' has no attribute {name!r}")

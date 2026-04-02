@@ -1,19 +1,10 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
 from typing import AsyncIterator
 
 from copilot_acp.client import CopilotACPClient, PromptTranscript, SessionHandle
-
-
-@dataclass(slots=True)
-class SessionOptions:
-    cwd: str | None = None
-    executable: str | None = None
-    model: str | None = None
-    env: dict[str, str] | None = None
-    extra_cli_args: list[str] | None = None
+from copilot_acp.models import SessionOptions
 
 
 class CopilotChatSession:

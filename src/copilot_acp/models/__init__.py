@@ -1,5 +1,6 @@
 from .message import MailboxMessage, MessageKind, MessageStatus, OutboundMessage
 from .runtime import PromptRequest, PromptResponse, RuntimeOptions
+from .session import SessionOptions
 from .worker import WorkerProfile
 
 __all__ = [
@@ -10,5 +11,6 @@ __all__ = [
     "PromptRequest",
     "PromptResponse",
     "RuntimeOptions",
+    "SessionOptions",
     "WorkerProfile",
 ]

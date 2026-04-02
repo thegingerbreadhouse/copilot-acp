@@ -5,8 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from copilot_acp.models import WorkerProfile
-from copilot_acp.services import SessionOptions
+from copilot_acp.models import SessionOptions, WorkerProfile
 
 
 @dataclass(slots=True)
