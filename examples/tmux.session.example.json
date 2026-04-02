@@ -1,0 +1,15 @@
+{
+  "session_name": "copilot-acp-swarm",
+  "workers": [
+    {
+      "name": "dev",
+      "worker_config": "worker.config.example.json",
+      "conda_env": "copilot-acp"
+    },
+    {
+      "name": "review",
+      "worker_config": "worker.review.config.example.json",
+      "conda_env": "copilot-acp"
+    }
+  ]
+}

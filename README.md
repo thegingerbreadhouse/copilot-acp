@@ -231,6 +231,24 @@ python supervisor-skill/scripts/inspect_mailbox.py \
   --thread-id <thread_id>
 ```
 
+## Tmux control plane
+
+If you want tmux to host the worker terminals while the mailbox remains the message bus:
+
+```bash
+copilot-acp tmux up --config examples/tmux.session.example.json
+tmux attach -t copilot-acp-swarm
+```
+
+To inspect or stop the session:
+
+```bash
+copilot-acp tmux ls
+copilot-acp tmux down --session-name copilot-acp-swarm
+```
+
+The tmux session config is in [tmux.session.example.json](/Users/kateanderson/Documents/Programming/copilot-acp/examples/tmux.session.example.json).
+
 Minimal programmatic shape:
 
 ```python

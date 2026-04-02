@@ -143,6 +143,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+copilot-acp.sqlite
 
 # Spyder project settings
 .spyderproject

@@ -5,7 +5,8 @@ import asyncio
 from dataclasses import dataclass
 from pathlib import Path
 
-from copilot_acp.config import WorkerConfigLoader
+from copilot_acp.config import TmuxSessionConfigLoader, WorkerConfigLoader
+from copilot_acp.control import TmuxLauncher
 from copilot_acp.mailbox import SQLiteMailbox
 from copilot_acp.models import RuntimeOptions
 from copilot_acp.workers import AgentWorker
@@ -23,6 +24,8 @@ class CLIOptions:
     port: int
     enable_repl: bool
     config: str | None
+    tmux_action: str | None
+    session_name: str | None
 
 
 class CopilotACPCLI:
@@ -90,6 +93,19 @@ class CopilotACPCLI:
             default="worker.config.json",
             help="Path to the worker configuration file.",
         )
+        tmux_parser = subparsers.add_parser(
+            "tmux",
+            help="Use tmux as a local control plane for worker processes.",
+        )
+        tmux_subparsers = tmux_parser.add_subparsers(dest="tmux_action")
+
+        tmux_up = tmux_subparsers.add_parser("up", help="Start a tmux session of workers from config.")
+        tmux_up.add_argument("--config", required=True, help="Path to the tmux session config file.")
+
+        tmux_ls = tmux_subparsers.add_parser("ls", help="List active tmux sessions.")
+
+        tmux_down = tmux_subparsers.add_parser("down", help="Stop a tmux session.")
+        tmux_down.add_argument("--session-name", required=True, help="tmux session name to stop.")
         return parser
 
     def _parse_args(self, argv: list[str] | None) -> CLIOptions:
@@ -105,6 +121,8 @@ class CopilotACPCLI:
             port=getattr(args, "port", 8765),
             enable_repl=not getattr(args, "no_repl", False),
             config=getattr(args, "config", None),
+            tmux_action=getattr(args, "tmux_action", None),
+            session_name=getattr(args, "session_name", None),
         )
 
     async def _dispatch(self, options: CLIOptions) -> int:
@@ -116,6 +134,8 @@ class CopilotACPCLI:
             return await self._run_serve(service, options)
         if options.command == "worker":
             return await self._run_worker(options)
+        if options.command == "tmux":
+            return await self._run_tmux(options)
         service = self._build_service(options)
         return await self._run_chat(service)
 
@@ -186,3 +206,25 @@ class CopilotACPCLI:
         )
         await worker.run()
         return 0
+
+    async def _run_tmux(self, options: CLIOptions) -> int:
+        launcher = TmuxLauncher()
+        if options.tmux_action == "up":
+            if not options.config:
+                raise ValueError("The `tmux up` command requires a config path.")
+            config = TmuxSessionConfigLoader().load(options.config)
+            launcher.start_session(config)
+            print(f"Started tmux session `{config.session_name}`.")
+            print(launcher.attach_hint(config.session_name))
+            return 0
+        if options.tmux_action == "ls":
+            for session in launcher.list_sessions():
+                print(session)
+            return 0
+        if options.tmux_action == "down":
+            if not options.session_name:
+                raise ValueError("The `tmux down` command requires a session name.")
+            launcher.stop_session(options.session_name)
+            print(f"Stopped tmux session `{options.session_name}`.")
+            return 0
+        raise ValueError("The `tmux` command requires a subcommand: up, ls, or down.")
