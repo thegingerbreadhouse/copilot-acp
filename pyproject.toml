@@ -12,6 +12,7 @@ dependencies = [
 dev = []
 
 [project.scripts]
+copilot-acp = "copilot_acp.__main__:main"
 copilot-acp-once = "copilot_acp.examples.run_once:main"
 
 [build-system]

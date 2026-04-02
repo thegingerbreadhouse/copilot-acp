@@ -94,6 +94,54 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
+## CLI wrapper
+
+The package now includes a thin CLI on top of the ACP client:
+
+```bash
+python -m copilot_acp ask "Briefly, state your capabilities."
+python -m copilot_acp --model gpt-5.2 ask "Summarize this repository."
+python -m copilot_acp chat
+python -m copilot_acp serve
+```
+
+After reinstalling the editable package, the console script is also available:
+
+```bash
+copilot-acp ask "Briefly, state your capabilities."
+copilot-acp chat
+copilot-acp serve
+```
+
+## Persistent host mode
+
+Use `serve` to keep one ACP session alive and accept prompts from both:
+
+- the attached terminal prompt
+- a lightweight local JSON-over-TCP interface
+
+Start it:
+
+```bash
+copilot-acp serve
+copilot-acp serve --port 9000
+copilot-acp serve --no-repl
+```
+
+When running, it listens on `127.0.0.1:8765` by default and accepts one JSON object per line:
+
+```json
+{"prompt":"Briefly, state your capabilities.","request_id":"demo-1"}
+```
+
+It returns one JSON response per line:
+
+```json
+{"ok":true,"text":"...","stop_reason":"end_turn","session_id":"...","request_id":"demo-1","error":null}
+```
+
+You can also send `"/exit"` or `"/quit"` as the prompt to stop the host.
+
 ## Example script
 
 ```bash
