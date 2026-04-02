@@ -4,6 +4,11 @@ Thin Python wrapper for talking to GitHub Copilot CLI through the Agent Client P
 
 Default model: `gpt-4.1`.
 
+The project now has two layers:
+
+- a thin ACP transport wrapper for Copilot CLI
+- a higher-level mailbox runtime for supervisor/worker orchestration
+
 ## Why this shape
 
 GitHub documents Copilot CLI's ACP mode as a stdio/TCP server started with `copilot --acp`, and explicitly recommends `stdio` for IDE-style integrations. The official ACP Python SDK already handles ACP framing, process lifecycle, and session callbacks, so this project keeps the wrapper narrow instead of rebuilding transport code.
@@ -141,6 +146,54 @@ It returns one JSON response per line:
 ```
 
 You can also send `"/exit"` or `"/quit"` as the prompt to stop the host.
+
+## Mailbox runtime
+
+For multi-agent orchestration, the project now includes a mailbox-oriented runtime:
+
+- `SQLiteMailbox` provides a durable local queue with lease-based claiming
+- `Supervisor` submits tasks and waits for results
+- `AgentWorker` holds a persistent ACP session and processes mailbox messages
+- `WorkerProfile` defines role, mailbox name, and worker instructions
+
+This is the intended direction for swarm-style coordination because ACP handles the Copilot session, while the mailbox layer handles durable routing, retries, and supervisor/worker boundaries.
+
+Minimal programmatic shape:
+
+```python
+import asyncio
+from pathlib import Path
+
+from copilot_acp import AgentWorker, SQLiteMailbox, Supervisor, WorkerProfile
+
+
+async def main() -> None:
+    mailbox = SQLiteMailbox(Path("/tmp/copilot-acp.sqlite"))
+    supervisor = Supervisor(mailbox, supervisor_id="supervisor.main")
+    worker = AgentWorker(
+        WorkerProfile(
+            worker_id="worker.dev.1",
+            mailbox="worker.dev",
+            role="developer",
+            system_prompt="Answer briefly and accurately.",
+            model="gpt-4.1",
+        ),
+        mailbox,
+    )
+
+    task = await supervisor.submit_task(
+        recipient="worker.dev",
+        subject="Smoke test",
+        body="Reply with exactly mailbox-ok.",
+    )
+
+    await worker.run_until_idle(max_messages=1)
+    result = await supervisor.wait_for_result(thread_id=task.thread_id)
+    print(result.body)
+
+
+asyncio.run(main())
+```
 
 ## Example script
 

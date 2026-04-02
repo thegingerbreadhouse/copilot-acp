@@ -1,11 +1,27 @@
 from .client import CopilotACPClient, PromptTranscript, SessionHandle, SessionUpdateEvent
-from .models import PromptRequest, PromptResponse, RuntimeOptions
+from .mailbox import SQLiteMailbox
+from .models import (
+    MailboxMessage,
+    MessageKind,
+    MessageStatus,
+    OutboundMessage,
+    PromptRequest,
+    PromptResponse,
+    RuntimeOptions,
+    WorkerProfile,
+)
 from .services import CopilotChatSession, CopilotPromptService, SessionOptions
+from .supervisor import Supervisor
+from .workers import AgentWorker
 
 __all__ = [
     "CopilotACPClient",
     "CopilotChatSession",
     "CopilotPromptService",
+    "MailboxMessage",
+    "MessageKind",
+    "MessageStatus",
+    "OutboundMessage",
     "PromptRequest",
     "PromptResponse",
     "PromptTranscript",
@@ -13,4 +29,8 @@ __all__ = [
     "SessionOptions",
     "SessionHandle",
     "SessionUpdateEvent",
+    "SQLiteMailbox",
+    "Supervisor",
+    "WorkerProfile",
+    "AgentWorker",
 ]
