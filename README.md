@@ -158,6 +158,37 @@ For multi-agent orchestration, the project now includes a mailbox-oriented runti
 
 This is the intended direction for swarm-style coordination because ACP handles the Copilot session, while the mailbox layer handles durable routing, retries, and supervisor/worker boundaries.
 
+## Config-driven workers
+
+The intended terminal model is:
+
+- one terminal
+- one worker process
+- one `worker.config.json`
+- one persistent ACP session
+- one subscribed mailbox
+
+That keeps agents isolated and cheap to run while allowing each worker to specialize independently.
+
+Start a worker from config:
+
+```bash
+copilot-acp worker --config examples/worker.config.example.json
+```
+
+The config file controls:
+
+- mailbox database path
+- worker identity and mailbox subscription
+- role and system prompt
+- model choice
+- session cwd and executable
+- raw extra Copilot CLI args for tool or MCP customization
+- environment variables
+- lightweight prompt-level customization for skills, hooks, and operating rules
+
+The example config is in [worker.config.example.json](/Users/kateanderson/Documents/Programming/copilot-acp/examples/worker.config.example.json).
+
 Minimal programmatic shape:
 
 ```python

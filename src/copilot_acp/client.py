@@ -102,12 +102,16 @@ class CopilotACPClient:
         protocol_version: int = 1,
         default_cwd: str | os.PathLike[str] | None = None,
         permission_handler: PermissionHandler | None = None,
+        env: dict[str, str] | None = None,
+        extra_cli_args: list[str] | None = None,
     ) -> None:
         self.executable = self._resolve_executable(executable)
         self.model = model or _DEFAULT_MODEL
         self.protocol_version = protocol_version
         self.default_cwd = str(Path(default_cwd).resolve()) if default_cwd else os.getcwd()
         self._event_client = _EventClient(permission_handler=permission_handler)
+        self.env = dict(env or {})
+        self.extra_cli_args = list(extra_cli_args or [])
         self._spawn_cm: Any = None
         self._connection: Any = None
         self._process: Any = None
@@ -116,10 +120,12 @@ class CopilotACPClient:
         command = [self.executable]
         if self.model:
             command.extend(["--model", self.model])
+        command.extend(self.extra_cli_args)
         command.extend(["--acp", "--stdio"])
         self._spawn_cm = spawn_agent_process(
             self._event_client,
             *command,
+            env=self._build_env(),
         )
         try:
             self._connection, self._process = await self._spawn_cm.__aenter__()
@@ -206,6 +212,11 @@ class CopilotACPClient:
     def _require_connection(self) -> None:
         if self._connection is None:
             raise RuntimeError("CopilotACPClient is not connected. Use `async with` first.")
+
+    def _build_env(self) -> dict[str, str]:
+        merged_env = dict(os.environ)
+        merged_env.update(self.env)
+        return merged_env
 
     @staticmethod
     def _resolve_executable(executable: str | None) -> str:

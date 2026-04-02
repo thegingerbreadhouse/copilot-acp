@@ -1,4 +1,5 @@
 from .client import CopilotACPClient, PromptTranscript, SessionHandle, SessionUpdateEvent
+from .config import WorkerConfig, WorkerConfigLoader
 from .mailbox import SQLiteMailbox
 from .models import (
     MailboxMessage,
@@ -18,6 +19,8 @@ __all__ = [
     "CopilotACPClient",
     "CopilotChatSession",
     "CopilotPromptService",
+    "WorkerConfig",
+    "WorkerConfigLoader",
     "MailboxMessage",
     "MessageKind",
     "MessageStatus",

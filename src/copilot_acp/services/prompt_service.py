@@ -12,6 +12,8 @@ class SessionOptions:
     cwd: str | None = None
     executable: str | None = None
     model: str | None = None
+    env: dict[str, str] | None = None
+    extra_cli_args: list[str] | None = None
 
 
 class CopilotChatSession:
@@ -41,6 +43,8 @@ class CopilotPromptService:
             executable=self._options.executable,
             model=self._options.model,
             default_cwd=self._options.cwd,
+            env=self._options.env,
+            extra_cli_args=self._options.extra_cli_args,
         ) as client:
             handle = await client.create_session(cwd=self._options.cwd)
             yield CopilotChatSession(client=client, handle=handle)

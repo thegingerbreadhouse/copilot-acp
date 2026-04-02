@@ -5,7 +5,10 @@ import asyncio
 from dataclasses import dataclass
 from pathlib import Path
 
+from copilot_acp.config import WorkerConfigLoader
+from copilot_acp.mailbox import SQLiteMailbox
 from copilot_acp.models import RuntimeOptions
+from copilot_acp.workers import AgentWorker
 from copilot_acp.services import CopilotPromptService, PersistentCopilotHost, SessionOptions
 
 
@@ -19,6 +22,7 @@ class CLIOptions:
     host: str
     port: int
     enable_repl: bool
+    config: str | None
 
 
 class CopilotACPCLI:
@@ -77,6 +81,15 @@ class CopilotACPCLI:
             action="store_true",
             help="Disable the attached terminal prompt and only serve TCP requests.",
         )
+        worker_parser = subparsers.add_parser(
+            "worker",
+            help="Start one mailbox-backed worker from a worker.config.json file.",
+        )
+        worker_parser.add_argument(
+            "--config",
+            default="worker.config.json",
+            help="Path to the worker configuration file.",
+        )
         return parser
 
     def _parse_args(self, argv: list[str] | None) -> CLIOptions:
@@ -91,21 +104,30 @@ class CopilotACPCLI:
             host=getattr(args, "host", "127.0.0.1"),
             port=getattr(args, "port", 8765),
             enable_repl=not getattr(args, "no_repl", False),
+            config=getattr(args, "config", None),
         )
 
     async def _dispatch(self, options: CLIOptions) -> int:
-        service = CopilotPromptService(
+        if options.command == "ask":
+            service = self._build_service(options)
+            return await self._run_ask(service, options)
+        if options.command == "serve":
+            service = self._build_service(options)
+            return await self._run_serve(service, options)
+        if options.command == "worker":
+            return await self._run_worker(options)
+        service = self._build_service(options)
+        return await self._run_chat(service)
+
+    @staticmethod
+    def _build_service(options: CLIOptions) -> CopilotPromptService:
+        return CopilotPromptService(
             SessionOptions(
                 cwd=options.cwd,
                 executable=options.executable,
                 model=options.model,
             )
         )
-        if options.command == "ask":
-            return await self._run_ask(service, options)
-        if options.command == "serve":
-            return await self._run_serve(service, options)
-        return await self._run_chat(service)
 
     async def _run_ask(self, service: CopilotPromptService, options: CLIOptions) -> int:
         if not options.prompt:
@@ -143,3 +165,24 @@ class CopilotACPCLI:
             ),
         )
         return await host.run()
+
+    async def _run_worker(self, options: CLIOptions) -> int:
+        if not options.config:
+            raise ValueError("The `worker` command requires a config path.")
+
+        config = WorkerConfigLoader().load(options.config)
+
+        mailbox = SQLiteMailbox(config.mailbox.database_path)
+        worker = AgentWorker(
+            config.profile,
+            mailbox,
+            session_options=config.session,
+            poll_interval_seconds=config.runtime.poll_interval_seconds,
+            lease_seconds=config.runtime.lease_seconds,
+        )
+        print(
+            f"Worker `{config.profile.worker_id}` listening on mailbox "
+            f"`{config.profile.mailbox}` using {config.session.model or config.profile.model or 'gpt-4.1'}."
+        )
+        await worker.run()
+        return 0
