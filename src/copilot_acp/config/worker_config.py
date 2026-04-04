@@ -40,7 +40,6 @@ class WorkerConfigLoader:
         worker_id = self._read_required_field(payload, "id", fallback_group="worker", fallback_key="worker_id")
         mailbox_name = self._read_required_field(payload, "mailbox", fallback_group="worker", fallback_key="mailbox")
         system_prompt = self._read_required_field(payload, "system_prompt", fallback_group="worker", fallback_key="system_prompt")
-        metadata = self._resolve_metadata(payload)
         model = self._resolve_model(payload, session_payload)
 
         session_cwd = session_payload.get("cwd")
@@ -52,7 +51,6 @@ class WorkerConfigLoader:
             mailbox=mailbox_name,
             system_prompt=system_prompt,
             model=model,
-            metadata=metadata,
         )
 
         return WorkerConfig(
@@ -96,14 +94,6 @@ class WorkerConfigLoader:
         if isinstance(mailbox_payload, dict) and "database_path" in mailbox_payload:
             return mailbox_payload["database_path"]
         raise KeyError("database")
-
-    @staticmethod
-    def _resolve_metadata(payload: dict[str, Any]) -> dict[str, Any]:
-        metadata = payload.get("metadata")
-        if metadata is not None:
-            return metadata
-        worker_payload = payload.get("worker", {})
-        return worker_payload.get("metadata", {})
 
     @staticmethod
     def _resolve_model(payload: dict[str, Any], session_payload: dict[str, Any]) -> str | None:

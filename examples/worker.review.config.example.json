@@ -2,15 +2,10 @@
   "id": "worker.review.1",
   "mailbox": "worker.review",
   "database": "../copilot-acp.sqlite",
-  "model": "gpt-4.1",
   "system_prompt": "Review work for correctness, regressions, and clarity. Reply concisely, focus on actionable correctness feedback, call out missing tests when relevant, and do not rewrite unrelated code.",
-  "metadata": {
-    "team": "engineering"
-  },
   "session": {
     "cwd": "..",
     "executable": "/opt/homebrew/bin/copilot",
-    "model": "gpt-4.1",
     "env": {},
     "extra_cli_args": [
       "--add-dir",

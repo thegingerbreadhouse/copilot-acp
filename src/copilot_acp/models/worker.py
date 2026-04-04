@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 
 @dataclass(slots=True)
@@ -10,4 +9,3 @@ class WorkerProfile:
     mailbox: str
     system_prompt: str
     model: str | None = None
-    metadata: dict[str, Any] = field(default_factory=dict)

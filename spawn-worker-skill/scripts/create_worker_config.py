@@ -21,7 +21,6 @@ def _run(args: argparse.Namespace) -> int:
         mailbox=args.mailbox,
         system_prompt=args.system_prompt,
         model=args.model,
-        metadata=_pairs_to_dict(args.metadata),
     )
     output_path = Path(args.output_path).resolve() if args.output_path else _default_output_path(args.output_dir, args.mailbox)
     builder = WorkerConfigBuilder()
@@ -73,7 +72,6 @@ def main() -> None:
     parser.add_argument("--executable", default="/opt/homebrew/bin/copilot", help="Path to the standalone copilot executable.")
     parser.add_argument("--poll-interval-seconds", type=float, default=1.0, help="Mailbox poll interval.")
     parser.add_argument("--lease-seconds", type=int, default=300, help="Mailbox lease duration.")
-    parser.add_argument("--metadata", action="append", default=[], help="Repeatable KEY=VALUE metadata pair.")
     parser.add_argument("--env", action="append", default=[], help="Repeatable KEY=VALUE session environment pair.")
     parser.add_argument("--extra-cli-arg", action="append", default=[], help="Repeatable raw Copilot CLI argument.")
     args = parser.parse_args()

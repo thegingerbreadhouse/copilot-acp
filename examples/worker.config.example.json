@@ -2,15 +2,10 @@
   "id": "worker.dev.1",
   "mailbox": "worker.dev",
   "database": "../copilot-acp.sqlite",
-  "model": "gpt-4.1",
   "system_prompt": "Implement requested work carefully, keep responses concise, prefer readable maintainable solutions, preserve existing architecture unless the task explicitly requests a refactor, and state blockers clearly in the result body if the task cannot be completed.",
-  "metadata": {
-    "team": "engineering"
-  },
   "session": {
     "cwd": "..",
     "executable": "/opt/homebrew/bin/copilot",
-    "model": "gpt-4.1",
     "env": {},
     "extra_cli_args": [
       "--add-dir",

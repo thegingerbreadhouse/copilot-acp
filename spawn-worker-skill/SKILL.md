@@ -90,6 +90,15 @@ Once launched, route tasks to the mailbox defined in the worker config.
 - `launch_worker.py`: Print or execute the worker start command, including optional tmux hosting.
 - `spawn_specialist.py`: Combined workflow for planning, config creation, and optional launch.
 
+Generated configs are intentionally minimal. The required external fields are:
+
+- `id`
+- `mailbox`
+- `database`
+- `system_prompt`
+
+Everything else is optional and can be defaulted by the runtime.
+
 ## Naming guidance
 
 - Use mailbox names that reflect the specialization, not the process model.

@@ -152,7 +152,7 @@ For multi-agent orchestration, the project now includes a mailbox-oriented runti
 - `SQLiteMailbox` provides a durable local queue with lease-based claiming
 - `Supervisor` submits tasks and waits for results
 - `AgentWorker` holds a persistent ACP session and processes mailbox messages
-- `WorkerProfile` defines mailbox identity, system prompt, and runtime metadata
+- `WorkerProfile` defines mailbox identity and the worker's system prompt
 
 This is the intended direction for swarm-style coordination because ACP handles the Copilot session, while the mailbox layer handles durable routing, retries, and supervisor/worker boundaries.
 
@@ -179,10 +179,21 @@ The config file controls:
 - agent identity and mailbox subscription
 - database path
 - system prompt specialization
-- model choice
-- session cwd and executable
-- raw extra Copilot CLI args for tool or MCP customization
-- environment variables
+- optional model override
+- optional session cwd and executable
+- optional raw Copilot CLI args for tool or MCP customization
+- optional environment variables
+
+The minimum working worker config is:
+
+```json
+{
+  "id": "worker.dev.1",
+  "mailbox": "worker.dev",
+  "database": "../copilot-acp.sqlite",
+  "system_prompt": "Implement requested work carefully and report blockers clearly."
+}
+```
 
 The example config is in [worker.config.example.json](/Users/kateanderson/Documents/Programming/copilot-acp/examples/worker.config.example.json).
 
