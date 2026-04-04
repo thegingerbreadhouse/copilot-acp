@@ -179,10 +179,11 @@ The config file controls:
 - agent identity and mailbox subscription
 - database path
 - system prompt specialization
-- optional model override
+- optional model override, defaulting to `gpt-4.1`
 - optional session cwd and executable
 - optional raw Copilot CLI args for tool or MCP customization
 - optional environment variables
+- optional mailbox polling and lease overrides
 
 The minimum working worker config is:
 
@@ -194,6 +195,12 @@ The minimum working worker config is:
   "system_prompt": "Implement requested work carefully and report blockers clearly."
 }
 ```
+
+If omitted:
+
+- `model` defaults to `gpt-4.1`
+- `session` defaults to the current working directory, the preferred standalone `copilot` executable, and no extra env or CLI args
+- `runtime` defaults to `poll_interval_seconds: 1.0` and `lease_seconds: 300`
 
 The example config is in [worker.config.example.json](/Users/kateanderson/Documents/Programming/copilot-acp/examples/worker.config.example.json).
 
@@ -258,6 +265,8 @@ copilot-acp tmux down --session-name copilot-acp-swarm
 ```
 
 The tmux session config is in [tmux.session.example.json](/Users/kateanderson/Documents/Programming/copilot-acp/examples/tmux.session.example.json).
+
+Worker configs used by tmux sessions follow the same minimal schema described above.
 
 Minimal programmatic shape:
 
