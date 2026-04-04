@@ -144,6 +144,7 @@ ENV/
 env.bak/
 venv.bak/
 copilot-acp.sqlite
+generated-workers/
 
 # Spyder project settings
 .spyderproject

@@ -152,7 +152,7 @@ For multi-agent orchestration, the project now includes a mailbox-oriented runti
 - `SQLiteMailbox` provides a durable local queue with lease-based claiming
 - `Supervisor` submits tasks and waits for results
 - `AgentWorker` holds a persistent ACP session and processes mailbox messages
-- `WorkerProfile` defines role, mailbox name, and worker instructions
+- `WorkerProfile` defines mailbox identity, system prompt, and runtime metadata
 
 This is the intended direction for swarm-style coordination because ACP handles the Copilot session, while the mailbox layer handles durable routing, retries, and supervisor/worker boundaries.
 
@@ -176,14 +176,13 @@ copilot-acp worker --config examples/worker.config.example.json
 
 The config file controls:
 
-- mailbox database path
-- worker identity and mailbox subscription
-- role and system prompt
+- agent identity and mailbox subscription
+- database path
+- system prompt specialization
 - model choice
 - session cwd and executable
 - raw extra Copilot CLI args for tool or MCP customization
 - environment variables
-- lightweight prompt-level customization for skills, hooks, and operating rules
 
 The example config is in [worker.config.example.json](/Users/kateanderson/Documents/Programming/copilot-acp/examples/worker.config.example.json).
 
@@ -265,7 +264,6 @@ async def main() -> None:
         WorkerProfile(
             worker_id="worker.dev.1",
             mailbox="worker.dev",
-            role="developer",
             system_prompt="Answer briefly and accurately.",
             model="gpt-4.1",
         ),

@@ -1,16 +1,11 @@
 {
-  "mailbox": {
-    "database_path": "../copilot-acp.sqlite"
-  },
-  "worker": {
-    "worker_id": "worker.dev.1",
-    "mailbox": "worker.dev",
-    "role": "developer",
-    "model": "gpt-4.1",
-    "system_prompt": "Implement requested work carefully, keep responses concise, and prefer readable maintainable solutions.",
-    "metadata": {
-      "team": "engineering"
-    }
+  "id": "worker.dev.1",
+  "mailbox": "worker.dev",
+  "database": "../copilot-acp.sqlite",
+  "model": "gpt-4.1",
+  "system_prompt": "Implement requested work carefully, keep responses concise, prefer readable maintainable solutions, preserve existing architecture unless the task explicitly requests a refactor, and state blockers clearly in the result body if the task cannot be completed.",
+  "metadata": {
+    "team": "engineering"
   },
   "session": {
     "cwd": "..",
@@ -25,19 +20,5 @@
   "runtime": {
     "poll_interval_seconds": 1.0,
     "lease_seconds": 300
-  },
-  "customization": {
-    "skills": [
-      "repository navigation",
-      "code implementation"
-    ],
-    "hooks": [
-      "Send concise results back to the supervisor mailbox.",
-      "Do not expand scope beyond the assigned task unless blocked."
-    ],
-    "operating_rules": [
-      "Preserve existing architecture unless the task explicitly requests a refactor.",
-      "State blockers clearly in the result body if the task cannot be completed."
-    ]
   }
 }

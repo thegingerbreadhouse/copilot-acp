@@ -1,16 +1,11 @@
 {
-  "mailbox": {
-    "database_path": "../copilot-acp.sqlite"
-  },
-  "worker": {
-    "worker_id": "worker.review.1",
-    "mailbox": "worker.review",
-    "role": "reviewer",
-    "model": "gpt-4.1",
-    "system_prompt": "Review work for correctness, regressions, and clarity. Reply concisely.",
-    "metadata": {
-      "team": "engineering"
-    }
+  "id": "worker.review.1",
+  "mailbox": "worker.review",
+  "database": "../copilot-acp.sqlite",
+  "model": "gpt-4.1",
+  "system_prompt": "Review work for correctness, regressions, and clarity. Reply concisely, focus on actionable correctness feedback, call out missing tests when relevant, and do not rewrite unrelated code.",
+  "metadata": {
+    "team": "engineering"
   },
   "session": {
     "cwd": "..",
@@ -25,19 +20,5 @@
   "runtime": {
     "poll_interval_seconds": 1.0,
     "lease_seconds": 300
-  },
-  "customization": {
-    "skills": [
-      "code review",
-      "regression spotting"
-    ],
-    "hooks": [
-      "Focus on actionable correctness feedback.",
-      "Keep responses concise and specific."
-    ],
-    "operating_rules": [
-      "Call out missing tests when relevant.",
-      "Do not rewrite unrelated code."
-    ]
   }
 }

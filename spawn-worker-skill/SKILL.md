@@ -32,7 +32,7 @@ Expand the swarm deliberately, not reflexively.
 
 - The task is small enough for the supervisor to do directly.
 - An existing specialist already covers the work.
-- The boundary is too fuzzy to give the new worker a clear role.
+- The boundary is too fuzzy to give the new worker a clear specialization prompt.
 - The task is a one-off with little chance of reuse.
 
 ## Workflow
@@ -64,10 +64,7 @@ python spawn-worker-skill/scripts/create_worker_config.py \
   --workspace /path/to/repository \
   --mailbox smart_file_auth \
   --worker-id smart_file_auth.1 \
-  --role "file specialist" \
-  --system-prompt "Own changes to src/app/auth.py and keep edits localized." \
-  --skill "file-local reasoning" \
-  --hook "Report blockers back to the supervisor mailbox."
+  --system-prompt "You own src/app/auth.py. Keep edits localized, preserve external behavior, and report blockers clearly."
 ```
 
 ### 3. Launch the specialist

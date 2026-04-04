@@ -75,7 +75,6 @@ class AgentWorker:
                     parent_message_id=message.message_id,
                     metadata={
                         "worker_id": self._profile.worker_id,
-                        "role": self._profile.role,
                         "stop_reason": transcript.stop_reason,
                     },
                 )
@@ -95,7 +94,6 @@ class AgentWorker:
                         parent_message_id=message.message_id,
                         metadata={
                             "worker_id": self._profile.worker_id,
-                            "role": self._profile.role,
                             "status": "failed",
                         },
                     )
@@ -104,25 +102,11 @@ class AgentWorker:
 
     def _build_prompt(self, message: object) -> str:
         subject = message.subject or "Task"
-        skills_block = self._format_list_section("Skills", self._profile.skills)
-        hooks_block = self._format_list_section("Hooks", self._profile.hooks)
-        rules_block = self._format_list_section("Operating rules", self._profile.operating_rules)
         return (
-            f"You are the specialized worker `{self._profile.role}`.\n\n"
             f"Operating instructions:\n{self._profile.system_prompt}\n\n"
-            f"{skills_block}"
-            f"{hooks_block}"
-            f"{rules_block}"
             f"Task subject: {subject}\n"
             f"From supervisor: {message.sender}\n"
             f"Thread id: {message.thread_id}\n\n"
             f"Task body:\n{message.body}\n\n"
             "Respond with the best useful completion for the supervisor."
         )
-
-    @staticmethod
-    def _format_list_section(title: str, items: list[str]) -> str:
-        if not items:
-            return ""
-        lines = "\n".join(f"- {item}" for item in items)
-        return f"{title}:\n{lines}\n\n"
